@@ -4,6 +4,10 @@ const API_URL =  'https://api.vyper.online/'
 const COMPILE_ENDPOINT = 'compile/'
 const EXAMPLE_URL = 'https://raw.githubusercontent.com/ethereum/vyper/master/examples/'
 
+
+var abiVal
+var _byteCode
+
 var COMPILE_FLAG = 0
 var API = (function(API, $, undefined) {
   
@@ -23,6 +27,7 @@ var API = (function(API, $, undefined) {
     }
     
     if (confirmed) {
+      COMPILE_FLAG = 0;
       let reqURL
       if (example.substr(0, 4) === 'http') {
         reqURL = example;
@@ -58,12 +63,14 @@ var API = (function(API, $, undefined) {
       dataType: 'json',
       data: this.params,
       success: function(data) {
+        _byteCode = null;
         if (data.result.bytecode_code === 200) {
           $('#bytecodeResult').html('<i class="fa fa-check" aria-hidden="true"></i>')
         } else {
           $('#bytecodeResult').html('<i class="fa fa-exclamation-circle" aria-hidden="true"></i>')
         }
         $('#bytecode').html(data.result.bytecode)
+        _byteCode = data.result.bytecode;
         
         if (data.result.json_code === 200 && data.result.abi_code === 200) {
           $('#abiResult').html('<i class="fa fa-check" aria-hidden="true"></i>')
@@ -71,7 +78,7 @@ var API = (function(API, $, undefined) {
           $('#abiResult').html('<i class="fa fa-exclamation-circle" aria-hidden="true"></i>')
         }
         $('#abiCompact').html(data.result.json)
-        var abiVal = null
+        abiVal = null
         if (data.result.abi_code === 200) {
           abiVal = JSON.stringify(data.result.abi, null, 4)
         } else {
@@ -179,4 +186,29 @@ function setFileName(rawName) {
   }
   var fname = exp.split("/");
   $("#filename").val(fname[fname.length-1]);
+}
+
+function deploy(showCNF) {
+
+  /* Web3JS Deploy Function
+  ByteCode = _byteCode
+  abi Def = abiVal
+  */
+  var conf = true;
+    if (showCNF) {
+      var loadMsg = "First Unlock Metamask and then set to Ropsten Network for Testing out the contract. \n Make sure you compile before deploying the contract";
+      conf = confirm(loadMsg);
+    } else {
+      alert("Error Loading");
+    }
+    
+    if (conf) {
+      if(COMPILE_FLAG != 1){
+        alert("Compile before Deploying the Contract"); 
+      } else {
+        //Go ahead
+        console.log("Deployed ??")
+      }
+    }
+
 }
