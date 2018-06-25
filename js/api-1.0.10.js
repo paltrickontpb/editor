@@ -1,8 +1,10 @@
+//const API_URL =  'https://api.vyper.online/'
+
 const API_URL =  'https://api.vyper.online/'
 const COMPILE_ENDPOINT = 'compile/'
 const EXAMPLE_URL = 'https://raw.githubusercontent.com/ethereum/vyper/master/examples/'
 
-
+var COMPILE_FLAG = 0
 var API = (function(API, $, undefined) {
   
   API.editor = null
@@ -28,6 +30,7 @@ var API = (function(API, $, undefined) {
         reqURL = EXAMPLE_URL + example;
       }
       $.get(reqURL , function(data) {
+        setFileName(example);
         API.editor.setValue(data);
         API.editor.clearSelection();
       })
@@ -83,9 +86,11 @@ var API = (function(API, $, undefined) {
         }
         API.lllEditor.setValue(data.result.lll)
         API.lllEditor.clearSelection()
+        COMPILE_FLAG = 1
       },
       fail: function() {
         $('#result').html("Mah.")
+        COMPILE_FLAG = 0
       }
     })
   };
@@ -159,7 +164,19 @@ function loadFileDropped(ev) {
 function displayContents(filename, data) {
   filename = filename.replace(".vy", "");
   filename = filename.replace(".v.py", "");
+  console.log(`The filename is ${filename}`)
   $("#filename").val(filename);
   API.editor.setValue(data);
   API.editor.clearSelection();
+}
+
+function setFileName(rawName) {
+  exp = "my_file"
+  if (rawName.endsWith(".vy")){
+    exp = rawName.slice(0,-3);
+  } else if (rawName.endsWith(".v.py")) {
+    exp = rawName.slice(0,-5);
+  }
+  var fname = exp.split("/");
+  $("#filename").val(fname[fname.length-1]);
 }
